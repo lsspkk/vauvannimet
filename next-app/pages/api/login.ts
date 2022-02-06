@@ -1,8 +1,12 @@
 import { withIronSessionApiRoute } from 'iron-session/next'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { sessionOptions } from '../../lib/session'
-import { LoginBody } from '../types'
 import { Account } from './user'
+
+export interface LoginBody {
+  account: string
+  password: string
+}
 
 export default withIronSessionApiRoute(async function handler(
   req: NextApiRequest,

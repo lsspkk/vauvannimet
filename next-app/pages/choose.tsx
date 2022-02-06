@@ -28,8 +28,8 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
     page: 0,
     pageSize: 100,
     nameCount: girls.length,
-    order: undefined,
-    direction: undefined,
+    order: 'count',
+    direction: 'asc',
     view: 'girls',
   })
 
@@ -57,14 +57,20 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
       dispatch(setHearts(newHearts))
     }
   }
-
-  useEffect(() => {
+  function init() {
     if (state.view === 'girls') {
       setData(girls.sort(compareNames))
     }
     if (state.view === 'boys') {
       setData(boys.sort(compareNames))
     }
+  }
+
+  useEffect(() => {
+    init()
+  }, [])
+  useEffect(() => {
+    init()
   }, [state.order, state.direction])
 
   const { page, pageSize, order } = state
@@ -89,8 +95,11 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
                 return undefined
               }
               return (
-                <div className='w-1/5 h-20 border p-2' key={`aName.${name.name}`}>
-                  <div>
+                <div
+                  className='w-1/6 h-20 border p-2 flex flex-col align-center align-items-center'
+                  key={`aName.${name.name}`}
+                >
+                  <div className='m-auto'>
                     {name.name} <span className='text-sm text-gray-400'>{name.count} </span>
                   </div>
                   <div className='flex m-2 justify-center'>

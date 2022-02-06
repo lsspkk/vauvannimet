@@ -37,18 +37,22 @@ export function Layout({ children, user }: { children?: ReactNode; user?: Accoun
             </div>
 
             {user && (
-              <div className='mx-8'>
+              <div className='mx-12'>
                 {router.pathname !== '/choose' && (
                   <Link href='/choose' passHref>
-                    <Button>Valitse</Button>
+                    <Button className='mr-8'>Valitse</Button>
                   </Link>
                 )}
                 {router.pathname !== '/view' && (
                   <Link href='/view' passHref>
-                    <Button>Katso</Button>
+                    <Button className='mr-8'>Katso</Button>
                   </Link>
                 )}
-                {hearts.length > 0 && <Button onClick={() => save()}>Tallenna</Button>}
+                {hearts.length > 0 && (
+                  <Button className='ml-4' onClick={() => save()}>
+                    Tallenna
+                  </Button>
+                )}
               </div>
             )}
           </div>
