@@ -18,6 +18,7 @@ const dbConnect = async (): Promise<void> => {
     return
   }
 
+  /* eslint-disable-next-line */
   pendingPromise = mongoose.connect(String(process.env.MONGODB_URI), {})
   try {
     await pendingPromise
