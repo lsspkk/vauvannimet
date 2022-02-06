@@ -3,22 +3,26 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Account } from 'pages/api/user'
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { Button } from './Button'
 import { saveHearts, setHearts, useStateValue } from './state/state'
 
-export function Layout({ children, user }: { children?: ReactNode; user?: Account }) {
+export function Layout({ children, user, loading }: { children?: ReactNode; user?: Account; loading?: boolean }) {
   const router = useRouter()
 
   const [{ hearts }, dispatch] = useStateValue()
+  const [saving, setSaving] = useState(false)
+
   function logout() {
     fetch('/api/logout').then(() => router.push('/'))
   }
 
   function save() {
+    setSaving(true)
     saveHearts(hearts)
       .then((newHearts) => dispatch(setHearts(newHearts)))
       .catch((result) => console.log('error when saving hearts', { result }))
+      .finally(() => setSaving(false))
   }
 
   return (
@@ -32,24 +36,28 @@ export function Layout({ children, user }: { children?: ReactNode; user?: Accoun
       <div className='h-screen flex flex-col justify-start items-center align-items-center'>
         <div className='w-screen h-20 flex justify-between items-center content-center bg-gray-200 shadow'>
           <div className='w-7/8 flex content-center items-center'>
-            <div className='pl-6 h-14 w-20 '>
+            <div className='pl-2 md:pl-6 h-14 w-20 '>
               <Image src='/baby-tram.png' alt='Logo' height='60' width='60' />
             </div>
 
             {user && (
-              <div className='mx-12'>
+              <div className='md:mx-12'>
                 {router.pathname !== '/choose' && (
                   <Link href='/choose' passHref>
-                    <Button className='mr-8'>Valitse</Button>
+                    <Button disabled={saving || loading} className='mr:1 md:mr-8'>
+                      Nimet
+                    </Button>
                   </Link>
                 )}
                 {router.pathname !== '/view' && (
                   <Link href='/view' passHref>
-                    <Button className='mr-8'>Katso</Button>
+                    <Button disabled={saving || loading} className='mr-8'>
+                      Tykkäykset
+                    </Button>
                   </Link>
                 )}
                 {hearts.length > 0 && (
-                  <Button className='ml-4' onClick={() => save()}>
+                  <Button disabled={saving || loading} className='ml-4' onClick={() => save()}>
                     Tallenna
                   </Button>
                 )}
@@ -63,7 +71,7 @@ export function Layout({ children, user }: { children?: ReactNode; user?: Accoun
           )}
         </div>
 
-        <main className='pb-20'>{children}</main>
+        <main className='pb-20 px-[3vw] max-w-[1200px] mx-auto'>{children}</main>
       </div>
     </div>
   )

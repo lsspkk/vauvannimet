@@ -35,15 +35,25 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
 
   const [data, setData] = useState<Name[]>([])
 
-  function compareNames(a: Name, b: Name) {
-    if (state.order === 'abc') {
-      if (a.name < b.name) return state.direction === 'asc' ? -1 : 1
-      if (a.name > b.name) return state.direction === 'asc' ? 1 : -1
-      return 0
+  function compareNames() {
+    if (state.order === 'abc' && state.direction === 'asc') {
+      return (a: Name, b: Name) => {
+        if (a.name < b.name) return -1
+        if (a.name > b.name) return 1
+        return 0
+      }
     }
-    if (a.count < b.count) return state.direction === 'desc' ? -1 : 1
-    if (a.count > b.count) return state.direction === 'desc' ? 1 : -1
-    return 0
+    if (state.order === 'abc' && state.direction === 'desc') {
+      return (a: Name, b: Name) => {
+        if (a.name < b.name) return 1
+        if (a.name > b.name) return -1
+        return 0
+      }
+    }
+    if (state.order === 'count' && state.direction === 'asc') {
+      return (a: Name, b: Name) => b.count - a.count
+    }
+    return (a: Name, b: Name) => a.count - b.count
   }
   function handleScoreClicked(name: string, score: number) {
     const old = hearts.find((h) => h.name === name && h.username === username)
@@ -59,18 +69,18 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
   }
   function init() {
     if (state.view === 'girls') {
-      setData(girls.sort(compareNames))
+      setData(() => [...girls].sort(compareNames()))
     }
     if (state.view === 'boys') {
-      setData(boys.sort(compareNames))
+      setData(() => [...boys].sort(compareNames()))
     }
   }
 
   useEffect(() => {
-    init()
+    if (state.order && state.direction) init()
   }, [])
   useEffect(() => {
-    init()
+    if (state.order && state.direction) init()
   }, [state.order, state.direction])
 
   const { page, pageSize, order } = state
@@ -96,7 +106,7 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
               }
               return (
                 <div
-                  className='w-1/6 h-20 border p-2 flex flex-col align-center align-items-center'
+                  className='w-1/2 md:w-1/4 lg:w-1/6 h-20 border p-2 flex flex-col align-center align-items-center'
                   key={`aName.${name.name}`}
                 >
                   <div className='m-auto'>
