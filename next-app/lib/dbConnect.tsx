@@ -7,7 +7,7 @@ import mongoose from 'mongoose'
 //   disconnecting: 3,
 // }
 
-let pendingPromise: (void & Promise<typeof mongoose>) | null = null
+let pendingPromise: Promise<typeof mongoose> | null = null
 
 const dbConnect = async (): Promise<void> => {
   if (mongoose.connection.readyState >= 1) {
@@ -18,7 +18,6 @@ const dbConnect = async (): Promise<void> => {
     return
   }
 
-  /* eslint-disable-next-line */
   pendingPromise = mongoose.connect(String(process.env.MONGODB_URI), {})
   try {
     await pendingPromise
