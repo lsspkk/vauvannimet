@@ -3,7 +3,6 @@ import dbConnect from 'lib/dbConnect'
 import { HeartInterface, Heart } from 'lib/heart'
 import { sessionOptions } from 'lib/session'
 import { NextApiRequest, NextApiResponse } from 'next'
-import { Account } from './user'
 
 export default withIronSessionApiRoute(async function handler(
   req: NextApiRequest,
@@ -19,15 +18,19 @@ export default withIronSessionApiRoute(async function handler(
     if (req.method === 'POST') {
       const hearts: HeartInterface[] = req.body
 
-      const log = await Heart.bulkWrite(hearts.map(h => ({
-        updateOne: {
-          filter: {_id: h.id, account},
-          update: h,
-          upsert: true,
-        }
-      })))
+      const log = await Heart.bulkWrite(
+        hearts.map((h) => ({
+          updateOne: {
+            filter: { _id: h.id, account },
+            update: h,
+            upsert: true,
+          },
+        }))
+      )
       console.log('bulkwrite log', log)
-      const newHearts: Array<HeartInterface> = await Heart.find({ account }).exec()
+      const newHearts: Array<HeartInterface> = await Heart.find({
+        account,
+      }).exec()
       res.status(200).json(newHearts)
     }
 
@@ -41,7 +44,6 @@ export default withIronSessionApiRoute(async function handler(
   }
 },
 sessionOptions)
-
 
 // export default withIronSessionApiRoute(async function handler(
 //   req: NextApiRequest,

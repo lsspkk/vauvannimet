@@ -26,11 +26,11 @@ export interface RoundInterface {
 
 const ScoreSchema = new Schema<ScoreInterface>({
   username: { type: String, required: true },
-  score: { type: Number, required: true}
+  score: { type: Number, required: true },
 })
 const RoundSchema = new Schema<RoundInterface>({
-  round: { type: Number, required: true},
-  scores: [ScoreSchema]
+  round: { type: Number, required: true },
+  scores: [ScoreSchema],
 })
 
 const HeartSchema = new Schema<HeartInterface>({
@@ -38,14 +38,15 @@ const HeartSchema = new Schema<HeartInterface>({
   score: { type: Number, required: true },
   username: { type: String, required: true },
   account: { type: String, required: true },
-  rounds:  [RoundSchema]
+  rounds: [RoundSchema],
 })
 
-
-export const Score = mongoose.models?.Score || model<ScoreInterface>('Score', ScoreSchema)
-export const Round = mongoose.models?.Round || model<RoundInterface>('Round', RoundSchema)
-export const Heart = mongoose.models?.Heart || model<HeartInterface>('Heart', HeartSchema)
-
+export const Score =
+  mongoose.models?.Score || model<ScoreInterface>('Score', ScoreSchema)
+export const Round =
+  mongoose.models?.Round || model<RoundInterface>('Round', RoundSchema)
+export const Heart =
+  mongoose.models?.Heart || model<HeartInterface>('Heart', HeartSchema)
 
 mongoose.set('toJSON', {
   virtuals: true,

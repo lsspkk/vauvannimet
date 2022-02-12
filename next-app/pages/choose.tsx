@@ -1,3 +1,4 @@
+import React from 'react'
 import { InferGetServerSidePropsType } from 'next'
 import { sessionOptions } from '../lib/session'
 import { Account } from './api/user'
@@ -22,7 +23,9 @@ export interface Name {
   count: number
   name: string
 }
-export default function ViewPage({ user }: InferGetServerSidePropsType<typeof getServerSideProps>) {
+export default function ViewPage({
+  user,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [{ username, hearts }, dispatch] = useStateValue()
   const [state, setState] = useState<PageState>({
     page: 0,
@@ -62,7 +65,9 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
       dispatch(addHeart({ name, score, username }))
     } else {
       const newHearts = hearts.map((h) =>
-        h.name !== name || h.username !== username ? { ...h } : { name, username, score }
+        h.name !== name || h.username !== username
+          ? { ...h }
+          : { name, username, score }
       )
       dispatch(setHearts(newHearts))
     }
@@ -88,38 +93,69 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
 
   return (
     <Layout {...{ user }}>
-      <div className='mt-2 mb-8 w-full flex justify-center text-xs sm:text-[1rem]'>
-        <div className='font-bold mr-2'>Järjestys:</div>
-        <RadioLabel {...{ state, setState, order: 'count', direction: 'asc', label: 'Yleisin' }} />
-        <RadioLabel {...{ state, setState, order: 'count', direction: 'desc', label: 'Harvinaisin' }} />
-        <RadioLabel {...{ state, setState, order: 'abc', direction: 'asc', label: 'ABC' }} />
-        <RadioLabel {...{ state, setState, order: 'abc', direction: 'desc', label: 'ÖÄÅ' }} />
+      <div className="mt-2 mb-8 w-full flex justify-center text-xs sm:text-[1rem]">
+        <div className="font-bold mr-2">Järjestys:</div>
+        <RadioLabel
+          {...{
+            state,
+            setState,
+            order: 'count',
+            direction: 'asc',
+            label: 'Yleisin',
+          }}
+        />
+        <RadioLabel
+          {...{
+            state,
+            setState,
+            order: 'count',
+            direction: 'desc',
+            label: 'Harvinaisin',
+          }}
+        />
+        <RadioLabel
+          {...{ state, setState, order: 'abc', direction: 'asc', label: 'ABC' }}
+        />
+        <RadioLabel
+          {...{
+            state,
+            setState,
+            order: 'abc',
+            direction: 'desc',
+            label: 'ÖÄÅ',
+          }}
+        />
       </div>
       {order && (
         <div>
           <Pager {...{ state, setState }} />
 
-          <div className='flex flex-wrap mx-2 mb-8 '>
+          <div className="flex flex-wrap mx-2 mb-8 ">
             {data.map((name, i) => {
               if (i < pageSize * page || i >= pageSize * (page + 1)) {
                 return undefined
               }
               return (
                 <div
-                  className='w-1/2 md:w-1/4 lg:w-1/6 h-20 border p-2 flex flex-col align-center align-items-center'
+                  className="w-1/2 md:w-1/4 lg:w-1/6 h-20 border p-2 flex flex-col align-center align-items-center"
                   key={`aName.${name.name}`}
                 >
-                  <div className='m-auto'>
-                    {name.name} <span className='text-sm text-gray-400'>{name.count} </span>
+                  <div className="m-auto">
+                    {name.name}{' '}
+                    <span className="text-sm text-gray-400">{name.count} </span>
                   </div>
-                  <div className='flex m-2 justify-center'>
+                  <div className="flex m-2 justify-center">
                     {scoreRange.map((score) => (
                       <HeartIcon
                         key={`scoreRange.${name.name}.${score}`}
-                        className='h-6 w-6 mx-1'
+                        className="h-6 w-6 mx-1"
                         checked={
-                          hearts.find((h) => h.name === name.name && h.username === username && h.score >= score) !==
-                          undefined
+                          hearts.find(
+                            (h) =>
+                              h.name === name.name &&
+                              h.username === username &&
+                              h.score >= score
+                          ) !== undefined
                         }
                         onClick={() => handleScoreClicked(name.name, score)}
                       />
@@ -131,14 +167,16 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
           </div>
 
           <Pager {...{ state, setState }} />
-
         </div>
       )}
     </Layout>
   )
 }
 
-export const getServerSideProps = withIronSessionSsr(async function ({ req, res }) {
+export const getServerSideProps = withIronSessionSsr(async function ({
+  req,
+  res,
+}) {
   const user = req.session.user
 
   if (user === undefined) {
@@ -155,9 +193,16 @@ export const getServerSideProps = withIronSessionSsr(async function ({ req, res 
   return {
     props: { user: req.session.user },
   }
-}, sessionOptions)
+},
+sessionOptions)
 
-function Pager({ state, setState }: { state: PageState; setState: Dispatch<SetStateAction<PageState>> }) {
+function Pager({
+  state,
+  setState,
+}: {
+  state: PageState
+  setState: Dispatch<SetStateAction<PageState>>
+}) {
   const { page, pageSize, nameCount } = state
 
   const pageCount = Math.ceil(nameCount / pageSize)
@@ -166,45 +211,49 @@ function Pager({ state, setState }: { state: PageState; setState: Dispatch<SetSt
   const showPrevious = page > 0
 
   return (
-    <div className='w-full flex justify-center align-items-center items-center mb-8 text-xs sm:text-sm'>
+    <div className="w-full flex justify-center align-items-center items-center mb-8 text-xs sm:text-sm">
       <div>
-      <div className='flex w-full justify-between'>
-      <div className='md:mx-8'>Nimiä {nameCount}kpl</div>
-      <div className='md:mx-8'>
-        Sivu {page + 1}/{pageCount}
-      </div>
-      </div>
+        <div className="flex w-full justify-between">
+          <div className="md:mx-8">Nimiä {nameCount}kpl</div>
+          <div className="md:mx-8">
+            Sivu {page + 1}/{pageCount}
+          </div>
+        </div>
 
         <div>
-      <button
-        className='w-8 h-8 border rounded-full shadow mx-2 align-super text-gray-400'
-        disabled={!showPrevious}
-        onClick={() => setState((prev) => ({ ...prev, page: prev.page - 1 }))}
-      >
-        <div className='text-4xl ' style={{ marginTop: '-0.2em' }}>
-          -
+          <button
+            className="w-8 h-8 border rounded-full shadow mx-2 align-super text-gray-400"
+            disabled={!showPrevious}
+            onClick={() =>
+              setState((prev) => ({ ...prev, page: prev.page - 1 }))
+            }
+          >
+            <div className="text-4xl " style={{ marginTop: '-0.2em' }}>
+              -
+            </div>
+          </button>
+          <input
+            type="range"
+            value={page}
+            min="0"
+            max={pageCount - 1}
+            onChange={(e) => {
+              const page = Number(e.target.value)
+              setState((prev) => ({ ...prev, page }))
+            }}
+          ></input>
+          <button
+            className="w-8 h-8 border rounded-full shadow mx-2 align-super text-gray-400"
+            disabled={!showNext}
+            onClick={() =>
+              setState((prev) => ({ ...prev, page: prev.page + 1 }))
+            }
+          >
+            <div className="text-3xl " style={{ marginTop: '-0.2em' }}>
+              +
+            </div>
+          </button>
         </div>
-      </button>
-      <input
-        type='range'
-        value={page}
-        min='0'
-        max={pageCount - 1}
-        onChange={(e) => {
-          const page = Number(e.target.value)
-          setState((prev) => ({ ...prev, page }))
-        }}
-      ></input>
-      <button
-        className='w-8 h-8 border rounded-full shadow mx-2 align-super text-gray-400'
-        disabled={!showNext}
-        onClick={() => setState((prev) => ({ ...prev, page: prev.page + 1 }))}
-      >
-        <div className='text-3xl ' style={{ marginTop: '-0.2em' }}>
-          +
-        </div>
-      </button>
-      </div>
       </div>
     </div>
   )
@@ -224,11 +273,10 @@ function RadioLabel({
   setState: Dispatch<SetStateAction<PageState>>
 }) {
   return (
-    <label className='mx-1 sm:mx-2'>
+    <label className="mx-1 sm:mx-2">
       <input
-        
-        className='mr-1'
-        type='radio'
+        className="mr-1"
+        type="radio"
         name={`${order}.${direction}`}
         value={`${order}.${direction}`}
         checked={state.order === order && state.direction === direction}

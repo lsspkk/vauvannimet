@@ -1,7 +1,8 @@
 import useSWR from 'swr'
 import { HeartInterface } from './heart'
 
-const fetcher = (input: RequestInfo, init: RequestInit) => fetch(input, init).then((res) => res.json())
+const fetcher = (input: RequestInfo, init: RequestInit) =>
+  fetch(input, init).then((res) => res.json())
 
 export interface TeamsData {
   hearts: HeartInterface[]
