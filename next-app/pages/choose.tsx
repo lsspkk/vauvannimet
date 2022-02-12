@@ -88,7 +88,7 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
 
   return (
     <Layout {...{ user }}>
-      <div className='mt-2 mb-8 w-full flex justify-center'>
+      <div className='mt-2 mb-8 w-full flex justify-center text-xs sm:text-[1rem]'>
         <div className='font-bold mr-2'>Järjestys:</div>
         <RadioLabel {...{ state, setState, order: 'count', direction: 'asc', label: 'Yleisin' }} />
         <RadioLabel {...{ state, setState, order: 'count', direction: 'desc', label: 'Harvinaisin' }} />
@@ -99,7 +99,7 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
         <div>
           <Pager {...{ state, setState }} />
 
-          <div className='flex flex-wrap mx-2 lg:mx-40'>
+          <div className='flex flex-wrap mx-2 '>
             {data.map((name, i) => {
               if (i < pageSize * page || i >= pageSize * (page + 1)) {
                 return undefined
@@ -129,6 +129,9 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
               )
             })}
           </div>
+
+          <Pager {...{ state, setState }} />
+
         </div>
       )}
     </Layout>
@@ -163,11 +166,16 @@ function Pager({ state, setState }: { state: PageState; setState: Dispatch<SetSt
   const showPrevious = page > 0
 
   return (
-    <div className='w-full flex justify-center align-items-center items-center mb-8'>
-      <div className='mx-8'>Nimiä {nameCount}kpl</div>
-      <div className='mx-8'>
+    <div className='w-full flex justify-center align-items-center items-center mb-8 text-xs sm:text-sm'>
+      <div>
+      <div className='flex w-full justify-between'>
+      <div className='md:mx-8'>Nimiä {nameCount}kpl</div>
+      <div className='md:mx-8'>
         Sivu {page + 1}/{pageCount}
       </div>
+      </div>
+
+        <div>
       <button
         className='w-8 h-8 border rounded-full shadow mx-2 align-super text-gray-400'
         disabled={!showPrevious}
@@ -196,6 +204,8 @@ function Pager({ state, setState }: { state: PageState; setState: Dispatch<SetSt
           +
         </div>
       </button>
+      </div>
+      </div>
     </div>
   )
 }
@@ -214,8 +224,9 @@ function RadioLabel({
   setState: Dispatch<SetStateAction<PageState>>
 }) {
   return (
-    <label className='mx-2'>
+    <label className='mx-1 sm:mx-2'>
       <input
+        size="small"
         className='mr-1'
         type='radio'
         name={`${order}.${direction}`}

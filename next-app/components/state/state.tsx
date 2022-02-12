@@ -1,7 +1,7 @@
 import { HeartInterface } from 'lib/heart'
 import React, { createContext, ReactNode, useContext, useEffect, useReducer } from 'react'
 
-const initialState: State = { username: '', hearts: [] }
+const initialState: State = { username: '', hearts: [], round: 0 }
 const StateContext = createContext<[State, React.Dispatch<Action>]>([initialState, () => null])
 
 export const StateProvider = ({ children }: { children: ReactNode }) => {
@@ -22,14 +22,19 @@ export const useStateValue = () => useContext(StateContext)
 export interface State {
   username: string
   hearts: HeartInterface[]
+  round: number 
 }
 
 export type Action =
-  | {
-      type: 'SET_USERNAME'
-      payload: { username: string }
-    }
-  | {
+| {
+  type: 'SET_USERNAME'
+  payload: { username: string }
+}
+| {
+  type: 'SET_ROUND'
+  payload: { round: number }
+}
+| {
       type: 'ADD_HEART'
       payload: HeartInterface
     }
@@ -42,6 +47,7 @@ export const reducer = (state: State, action: Action): State => {
   switch (action.type) {
     case 'SET_USERNAME':
       localStorage.setItem('vauva.username', action.payload.username)
+    case 'SET_ROUND':
     case 'SET_HEARTS':
       return {
         ...state,
@@ -90,4 +96,9 @@ export const setHearts = (hearts: HeartInterface[]): Action => ({
 export const addHeart = (heart: HeartInterface): Action => ({
   type: 'ADD_HEART',
   payload: heart,
+})
+
+export const setRound = (round: number): Action => ({
+  type: 'SET_ROUND',
+  payload: { round },
 })

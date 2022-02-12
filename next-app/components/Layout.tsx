@@ -33,9 +33,9 @@ export function Layout({ children, user, loading }: { children?: ReactNode; user
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
-      <div className='h-screen flex flex-col justify-start items-center align-items-center'>
-        <div className='w-screen h-20 flex justify-between items-center content-center bg-gray-200 shadow'>
-          <div className='w-7/8 flex content-center items-center'>
+      <div className='w-full flex flex-col justify-start items-center align-items-center'>
+      <div className='w-full h-20 flex justify-between items-center content-center bg-gray-200 shadow'>
+          <div className='flex content-center items-center'>
             <div className='pl-2 md:pl-6 h-14 w-20 '>
               <Image src='/baby-tram.png' alt='Logo' height='60' width='60' />
             </div>
@@ -51,7 +51,7 @@ export function Layout({ children, user, loading }: { children?: ReactNode; user
                 )}
                 {router.pathname !== '/view' && (
                   <Link href='/view' passHref>
-                    <Button disabled={saving || loading} className='mr-8'>
+                    <Button disabled={saving || loading} className='rm:1 md:mr-8'>
                       Tykkäykset
                     </Button>
                   </Link>
@@ -66,12 +66,13 @@ export function Layout({ children, user, loading }: { children?: ReactNode; user
           </div>
           {user && (
             <div className='pr-4 justify-self-end'>
-              <Button onClick={() => logout()}>Kirjaudu ulos</Button>
+              <Button onClick={() => logout()}><span className='hidden md:inline'>Kirjaudu ulos</span><span className='md:hidden'>X</span></Button>
             </div>
           )}
         </div>
+        
 
-        <main className='pb-20 px-[3vw] max-w-[1200px] mx-auto'>{children}</main>
+        <main className='pb-20 px-[3vw] max-w-full overflow-auto md:max-w-[1600px] mx-auto'>{children}</main>
       </div>
     </div>
   )
