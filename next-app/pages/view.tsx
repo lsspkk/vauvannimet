@@ -58,7 +58,7 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
     <Layout {...{ user, loading }}>
       <div className='flex justify-between items-center w-full flex-col'>
         <div className='max-w-[40rem]'>
-          <div className='p-4 sm:p-10 m-4 sm:m-10 border rounded shadow-xl'>
+          <div className='p-4 sm:p-10 m-4 sm:m-10 border rounded shadow-xl text-sm md:text-base'>
             <div className='mb-5'>
               <div>
                 Tervetuloa <i>{user?.login}</i> nimen etsimispuuhiin.

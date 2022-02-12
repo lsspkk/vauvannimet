@@ -99,7 +99,7 @@ export default function ViewPage({ user }: InferGetServerSidePropsType<typeof ge
         <div>
           <Pager {...{ state, setState }} />
 
-          <div className='flex flex-wrap mx-2 '>
+          <div className='flex flex-wrap mx-2 mb-8 '>
             {data.map((name, i) => {
               if (i < pageSize * page || i >= pageSize * (page + 1)) {
                 return undefined
