@@ -226,7 +226,7 @@ function RadioLabel({
   return (
     <label className='mx-1 sm:mx-2'>
       <input
-        size="small"
+        
         className='mr-1'
         type='radio'
         name={`${order}.${direction}`}
