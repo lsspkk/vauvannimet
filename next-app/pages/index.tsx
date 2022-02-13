@@ -10,6 +10,7 @@ import { Title } from '../components/Title'
 import { Layout } from 'components/Layout'
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import { setUsername, useStateValue } from 'components/state/state'
 
 const Home: NextPage = () => {
   return (
@@ -34,8 +35,16 @@ export function SelectUserDialog(): ReactElement {
   const [account, setAccount] = useState<string>('')
   const [error, setError] = useState<string>('')
   const router = useRouter()
+  const [{ username }, dispatch] = useStateValue()
 
-  async function confirmPassword() {
+  function handleNoLogin() {
+    if (!['Tykkääjä 1', 'Tykkääjä 2'].includes(username)) {
+      dispatch(setUsername('Tykkääjä 1'))
+    }
+    router.push('/view')
+  }
+
+  async function handleLogin() {
     if (password === '') {
       return
     }
@@ -55,45 +64,50 @@ export function SelectUserDialog(): ReactElement {
       setTimeout(() => setError(''), 10000)
     }
   }
-  function cancel() {
-    setPassword('')
-    close()
-  }
-  return (
-    <div className="bg-white p-6 border rounded shadow-xl">
-      <Title>Kirjaudu</Title>
-      <div className="my-2">Tunnus</div>
-      <input
-        className={`my-2 p-2 border`}
-        type="text"
-        name="username"
-        onChange={(event: ChangeEvent<HTMLInputElement>) => {
-          setAccount(event.target.value)
-          setError('')
-        }}
-        onKeyPress={(event: KeyboardEvent) =>
-          event.key === 'Enter' && confirmPassword()
-        }
-      ></input>
 
-      <div className="my-2 mt-8">Salasana</div>
-      <input
-        className={`my-2 p-2 border ${
-          error && 'border-4 border-red-300 shadow'
-        }`}
-        type="password"
-        name="password"
-        onChange={(event: ChangeEvent<HTMLInputElement>) => {
-          setPassword(event.target.value)
-          setError('')
-        }}
-        onKeyPress={(event: KeyboardEvent) =>
-          event.key === 'Enter' && confirmPassword()
-        }
-      ></input>
-      {error && <div className="text-red-300">Väärä tunnus/salasana</div>}
-      <div className="flex my-2 w-full justify-between">
-        <Button onClick={() => confirmPassword()}>Kirjaudu</Button>
+  return (
+    <div>
+      <div className="bg-white p-6 border rounded shadow">
+        <div className="flex my-2 w-full justify-between">
+          <div>Ei käyttäjätunnusta</div>
+          <Button onClick={handleNoLogin}>Jatka</Button>
+        </div>
+      </div>
+      <div className="bg-white p-6 border rounded shadow">
+        <Title>Käyttäjätunnus</Title>
+        <div className="mt-4 text-sm md:text-basic">Nimi</div>
+        <input
+          className={`my-2 p-2 border`}
+          type="text"
+          name="username"
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            setAccount(event.target.value)
+            setError('')
+          }}
+          onKeyPress={(event: KeyboardEvent) =>
+            event.key === 'Enter' && handleLogin()
+          }
+        ></input>
+
+        <div className="mt-4 text-sm md:text-basic">Salasana</div>
+        <input
+          className={`my-2 p-2 border ${
+            error && 'border-4 border-red-300 shadow'
+          }`}
+          type="password"
+          name="password"
+          onChange={(event: ChangeEvent<HTMLInputElement>) => {
+            setPassword(event.target.value)
+            setError('')
+          }}
+          onKeyPress={(event: KeyboardEvent) =>
+            event.key === 'Enter' && handleLogin()
+          }
+        ></input>
+        {error && <div className="text-red-300">Väärä tunnus/salasana</div>}
+        <div className="flex my-2 w-full justify-end">
+          <Button onClick={() => handleLogin()}>Kirjaudu</Button>
+        </div>
       </div>
     </div>
   )

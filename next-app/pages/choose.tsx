@@ -1,11 +1,9 @@
-import React from 'react'
 import { InferGetServerSidePropsType } from 'next'
 import { sessionOptions } from '../lib/session'
 import { Account } from './api/user'
-
 import { withIronSessionSsr } from 'iron-session/next'
 import { Layout } from 'components/Layout'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { girls } from 'data/girls'
 import { boys } from 'data/boys'
 import { HeartIcon } from 'components/HeartIcon'
@@ -23,10 +21,11 @@ export interface Name {
   count: number
   name: string
 }
+const scoreRange = Array.from(Array(5), (x, i) => i + 1)
+
 export default function ViewPage({
   user,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const [{ username, hearts }, dispatch] = useStateValue()
   const [state, setState] = useState<PageState>({
     page: 0,
     pageSize: 100,
@@ -37,41 +36,20 @@ export default function ViewPage({
   })
 
   const [data, setData] = useState<Name[]>([])
+  const { page, pageSize, order, direction } = state
 
   function compareNames() {
-    if (state.order === 'abc' && state.direction === 'asc') {
+    if (order === 'abc') {
       return (a: Name, b: Name) => {
-        if (a.name < b.name) return -1
-        if (a.name > b.name) return 1
+        if (a.name < b.name) return direction === 'asc' ? -1 : 1
+        if (a.name > b.name) return direction === 'asc' ? 1 : -1
         return 0
       }
     }
-    if (state.order === 'abc' && state.direction === 'desc') {
-      return (a: Name, b: Name) => {
-        if (a.name < b.name) return 1
-        if (a.name > b.name) return -1
-        return 0
-      }
-    }
-    if (state.order === 'count' && state.direction === 'asc') {
-      return (a: Name, b: Name) => b.count - a.count
-    }
-    return (a: Name, b: Name) => a.count - b.count
+    return (a: Name, b: Name) =>
+      direction === 'asc' ? b.count - a.count : a.count - b.count
   }
-  function handleScoreClicked(name: string, score: number) {
-    const old = hearts.find((h) => h.name === name && h.username === username)
-    if (old?.score === score) return
-    if (!old) {
-      dispatch(addHeart({ name, score, username }))
-    } else {
-      const newHearts = hearts.map((h) =>
-        h.name !== name || h.username !== username
-          ? { ...h }
-          : { name, username, score }
-      )
-      dispatch(setHearts(newHearts))
-    }
-  }
+
   function init() {
     if (state.view === 'girls') {
       setData(() => [...girls].sort(compareNames()))
@@ -87,9 +65,6 @@ export default function ViewPage({
   useEffect(() => {
     if (state.order && state.direction) init()
   }, [state.order, state.direction])
-
-  const { page, pageSize, order } = state
-  const scoreRange = Array.from(Array(5), (x, i) => i + 1)
 
   return (
     <Layout {...{ user }}>
@@ -135,34 +110,7 @@ export default function ViewPage({
               if (i < pageSize * page || i >= pageSize * (page + 1)) {
                 return undefined
               }
-              return (
-                <div
-                  className="w-1/2 md:w-1/4 lg:w-1/6 h-20 border p-2 flex flex-col align-center align-items-center"
-                  key={`aName.${name.name}`}
-                >
-                  <div className="m-auto">
-                    {name.name}{' '}
-                    <span className="text-sm text-gray-400">{name.count} </span>
-                  </div>
-                  <div className="flex m-2 justify-center">
-                    {scoreRange.map((score) => (
-                      <HeartIcon
-                        key={`scoreRange.${name.name}.${score}`}
-                        className="h-6 w-6 mx-1"
-                        checked={
-                          hearts.find(
-                            (h) =>
-                              h.name === name.name &&
-                              h.username === username &&
-                              h.score >= score
-                          ) !== undefined
-                        }
-                        onClick={() => handleScoreClicked(name.name, score)}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )
+              return <GiveHeart key={`givename.${name.name}`} {...{ name }} />
             })}
           </div>
 
@@ -173,28 +121,69 @@ export default function ViewPage({
   )
 }
 
-export const getServerSideProps = withIronSessionSsr(async function ({
-  req,
-  res,
-}) {
+export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
   const user = req.session.user
+    ? req.session.user
+    : ({ isLoggedIn: false, login: '', usernames: [] } as Account)
 
-  if (user === undefined) {
-    res.setHeader('location', '/')
-    res.statusCode = 302
-    res.end()
-    return {
-      props: {
-        user: { isLoggedIn: false, login: '' } as Account,
-      },
-    }
-  }
+  // if (user === undefined) {
+  //   res.setHeader('location', '/')
+  //   res.statusCode = 302
+  //   res.end()
+  //   return {
+  //     props: {
+  //       user: { isLoggedIn: false, login: '' } as Account,
+  //     },
+  //   }
+  // }
 
   return {
-    props: { user: req.session.user },
+    props: { user },
   }
-},
-sessionOptions)
+}, sessionOptions)
+
+function GiveHeart({ name }: { name: Name }) {
+  const [{ username, hearts }, dispatch] = useStateValue()
+
+  function handleScoreClicked(name: string, score: number) {
+    const old = hearts.find((h) => h.name === name && h.username === username)
+    if (old?.score === score) return
+    if (!old) {
+      dispatch(addHeart({ name, score, username }))
+    } else {
+      const newHearts = hearts.map((h) =>
+        h.name !== name || h.username !== username
+          ? { ...h }
+          : { name, username, score }
+      )
+      dispatch(setHearts(newHearts))
+    }
+  }
+  return (
+    <div className="w-1/2 md:w-1/4 lg:w-1/6 h-20 border p-2 flex flex-col align-center align-items-center">
+      <div className="m-auto">
+        {name.name} <span className="text-sm text-gray-400">{name.count} </span>
+      </div>
+      <div className="flex m-2 justify-center">
+        {scoreRange.map((score) => (
+          <HeartIcon
+            key={`scoreRange.${name.name}.${score}`}
+            className="h-6 w-6 mx-1"
+            checked={
+              hearts.find(
+                (h) =>
+                  h.name === name.name &&
+                  h.username === username &&
+                  h.score >= score
+              ) !== undefined
+            }
+            onClick={() => handleScoreClicked(name.name, score)}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 function Pager({
   state,

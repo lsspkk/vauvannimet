@@ -1,12 +1,16 @@
-import React from 'react'
 import Head from 'next/head'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Account } from 'pages/api/user'
-import { ReactNode, useState } from 'react'
+import React, { ReactNode, useState } from 'react'
 import { Button } from './Button'
-import { saveHearts, setHearts, useStateValue } from './state/state'
+import {
+  saveHearts,
+  setHearts,
+  setUsername,
+  useStateValue,
+} from './state/state'
 
 export function Layout({
   children,
@@ -22,8 +26,13 @@ export function Layout({
   const [{ hearts }, dispatch] = useStateValue()
   const [saving, setSaving] = useState(false)
 
-  function logout() {
-    fetch('/api/logout').then(() => router.push('/'))
+  async function logout() {
+    if (user?.isLoggedIn) {
+      await fetch('/api/logout')
+    }
+    dispatch(setHearts([]))
+    dispatch(setUsername(''))
+    router.push('/')
   }
 
   function save() {
@@ -48,7 +57,6 @@ export function Layout({
             <div className="pl-2 md:pl-6 h-14 w-20 ">
               <Image src="/baby-tram.png" alt="Logo" height="60" width="60" />
             </div>
-
             {user && (
               <div className="md:mx-12">
                 {router.pathname !== '/choose' && (
@@ -71,7 +79,7 @@ export function Layout({
                     </Button>
                   </Link>
                 )}
-                {hearts.length > 0 && (
+                {user?.isLoggedIn && hearts.length > 0 && (
                   <Button
                     disabled={saving || loading}
                     className="ml-4"
@@ -93,7 +101,7 @@ export function Layout({
           )}
         </div>
 
-        <main className="pb-20 px-[3vw] max-w-full overflow-auto md:max-w-[1600px] mx-auto">
+        <main className="pb-20 px-[3vw] w-full overflow-auto md:max-w-[1600px] mx-auto">
           {children}
         </main>
       </div>
