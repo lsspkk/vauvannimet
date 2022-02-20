@@ -139,9 +139,13 @@ function ExtensionRoundName({
       if (oldRound.round !== round || !oldRound.scores) {
         return { ...oldRound }
       }
-      const scores = oldRound.scores.map((s) =>
-        s.username !== username ? { ...s } : newScore
-      )
+      const scores = oldRound.scores.map((s) => {
+        if (s.username !== username) {
+          return { ...s }
+        }
+        const score = s.score === newScore.score ? 0 : newScore.score
+        return { score, username }
+      })
       return {
         ...oldRound,
         round,

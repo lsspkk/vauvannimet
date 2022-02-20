@@ -147,15 +147,22 @@ function GiveHeart({ name }: { name: Name }) {
 
   function handleScoreClicked(name: string, score: number) {
     const old = hearts.find((h) => h.name === name && h.username === username)
-    if (old?.score === score) return
-    if (!old) {
+    if (old?.score === score) {
+      if (old.id) return
+      dispatch(
+        setHearts(
+          hearts.filter((h) => h.name !== name || h.username !== username)
+        )
+      )
+    } else if (!old) {
       dispatch(addHeart({ name, score, username }))
     } else {
-      const newHearts = hearts.map((h) =>
-        h.name !== name || h.username !== username
-          ? { ...h }
-          : { name, username, score }
-      )
+      const newHearts = hearts.map((h) => {
+        if (h.name !== name || h.username !== username) {
+          return { ...h }
+        }
+        return { name, username, score }
+      })
       dispatch(setHearts(newHearts))
     }
   }
