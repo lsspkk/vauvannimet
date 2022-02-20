@@ -28,7 +28,7 @@ export function Layout({
 
   async function logout() {
     if (user?.isLoggedIn) {
-      await fetch('/api/logout')
+      await fetch('/api/logout', { method: 'POST' })
     }
     dispatch(setHearts([]))
     dispatch(setUsername(''))
