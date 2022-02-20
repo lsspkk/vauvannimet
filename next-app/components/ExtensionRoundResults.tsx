@@ -7,15 +7,26 @@ import { HeartIcon } from 'components/HeartIcon'
 import { Button } from 'components/Button'
 
 export function ExtensionRoundResults({ user }: { user: Account }) {
-  const [{ round, hearts, username }] = useStateValue()
+  const [{ round, hearts, username, roundSortByScore }] = useStateValue()
 
   const uniqueNames = new Set<string>(hearts.map((h) => h.name))
   const uniqueHearts = Array.from(uniqueNames)
-    .map((name) => ({
-      name,
-      nameHearts: hearts.filter((h) => h.name === name),
-    }))
+    .map((name) => {
+      const nameHearts = hearts.filter((h) => h.name === name)
+      const scores = nameHearts[0].rounds
+        ?.find((r) => r.round === round)
+        ?.scores?.map((s) => s.score)
+      const score = !scores ? 0 : scores.reduce((p, c) => p + c, 0)
+      const sortByScore = roundSortByScore && roundSortByScore.has(name)
+      return { name, nameHearts, score, sortByScore }
+    })
     .sort((a, b) => {
+      if (a.sortByScore && !b.sortByScore) return -1
+      if (!a.sortByScore && b.sortByScore) return 1
+      if (a.sortByScore && b.sortByScore) {
+        if (a.score > b.score) return -1
+        if (a.score < b.score) return 1
+      }
       if (a.name > b.name) return 1
       if (a.name < b.name) return -1
       return 0

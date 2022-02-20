@@ -9,6 +9,7 @@ import {
   loadHearts,
   setHearts,
   setRound,
+  resetRoundSortList,
 } from 'components/state/state'
 import { Title } from 'components/Title'
 import React, { useEffect, useState } from 'react'
@@ -156,7 +157,10 @@ function ChooseRoundMenu() {
                   }`}
                   key={`chooseRound.${r}`}
                   disabled={r === round}
-                  onClick={() => dispatch(setRound(r))}
+                  onClick={() => {
+                    dispatch(setRound(r))
+                    dispatch(resetRoundSortList())
+                  }}
                 >
                   {r}
                 </Button>

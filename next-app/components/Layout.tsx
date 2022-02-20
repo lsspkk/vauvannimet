@@ -6,6 +6,7 @@ import { Account } from 'pages/api/user'
 import React, { ReactNode, useState } from 'react'
 import { Button } from './Button'
 import {
+  resetRoundSortList,
   saveHearts,
   setHearts,
   setUsername,
@@ -83,7 +84,10 @@ export function Layout({
                   <Button
                     disabled={saving || loading}
                     className="ml-4"
-                    onClick={() => save()}
+                    onClick={() => {
+                      save()
+                      dispatch(resetRoundSortList())
+                    }}
                   >
                     Tallenna
                   </Button>
