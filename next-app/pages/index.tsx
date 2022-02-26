@@ -66,7 +66,7 @@ export function SelectUserDialog(): ReactElement {
   }
 
   return (
-    <div>
+    <div className="max-w-md mx-auto">
       <div className="bg-white p-6 border rounded shadow">
         <div className="flex my-2 w-full justify-between">
           <div>Ei käyttäjätunnusta</div>

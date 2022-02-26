@@ -18,14 +18,24 @@ export default withIronSessionApiRoute(async function handler(
     const body: LoginBody = req.body
     const accounts = process.env.ACCOUNTS?.split(',')?.map((a) => {
       const parts = a.split(':')
-      return { account: parts[0], password: process.env[parts[1]], usernames: process.env[parts[2]]?.split(',') }
+      return {
+        account: parts[0],
+        password: process.env[parts[1]],
+        usernames: process.env[parts[2]]?.split(','),
+      }
     })
 
-    const ok = accounts?.find((a) => a.account === body.account && a.password === body.password)
+    const ok = accounts?.find(
+      (a) => a.account === body.account && a.password === body.password
+    )
 
     if (ok) {
       const usernames = ok.usernames ? ok.usernames : []
-      const user = { isLoggedIn: true, login: body.account, usernames } as Account
+      const user = {
+        isLoggedIn: true,
+        login: body.account,
+        usernames,
+      } as Account
       req.session.user = user
       await req.session.save()
     }
