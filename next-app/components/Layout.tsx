@@ -105,7 +105,7 @@ export function Layout({
           )}
         </div>
 
-        <main className="pb-20 px-[3vw] w-full overflow-auto md:max-w-[1600px] mx-auto">
+        <main className="pb-10 px-[3vw] w-full overflow-auto md:max-w-[1600px] mx-auto">
           {children}
         </main>
       </div>

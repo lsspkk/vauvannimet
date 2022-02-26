@@ -8,6 +8,7 @@ import { girls } from 'data/girls'
 import { boys } from 'data/boys'
 import { HeartIcon } from 'components/HeartIcon'
 import { addHeart, setHearts, useStateValue } from 'components/state/state'
+import { ButtonSmall } from 'components/Button'
 
 export interface PageState {
   page: number
@@ -64,13 +65,29 @@ export default function ViewPage({
   }, [])
   useEffect(() => {
     if (state.order && state.direction) init()
-  }, [state.order, state.direction])
+  }, [state.order, state.direction, state.view])
 
   return (
     <Layout {...{ user }}>
-      <div className="mt-2 mb-8 w-full flex justify-center text-xs sm:text-[1rem]">
+      <div className="mt-2 mb-2 md:mb-4 w-full flex justify-center text-xs sm:text-[1rem]">
+        <ButtonSmall
+          className="mx-2 md:mx-6 disabled:bg-pink-400 bg-pink-100 hover:bg-pink-400"
+          disabled={state.view === 'girls'}
+          onClick={() => setState((prev) => ({ ...prev, view: 'girls' }))}
+        >
+          Tytöt
+        </ButtonSmall>
+        <ButtonSmall
+          className="mx-2 md:mx-6 disabled:bg-blue-400 bg-blue-100 hover:bg-blue-400"
+          disabled={state.view === 'boys'}
+          onClick={() => setState((prev) => ({ ...prev, view: 'boys' }))}
+        >
+          Pojat
+        </ButtonSmall>
+      </div>
+      <div className="mt-2 mb-6 w-full flex justify-center text-xs sm:text-[1rem]">
         <div className="font-bold mr-2">Järjestys:</div>
-        <RadioLabel
+        <SortRadio
           {...{
             state,
             setState,
@@ -79,7 +96,7 @@ export default function ViewPage({
             label: 'Yleisin',
           }}
         />
-        <RadioLabel
+        <SortRadio
           {...{
             state,
             setState,
@@ -88,10 +105,10 @@ export default function ViewPage({
             label: 'Harvinaisin',
           }}
         />
-        <RadioLabel
+        <SortRadio
           {...{ state, setState, order: 'abc', direction: 'asc', label: 'ABC' }}
         />
-        <RadioLabel
+        <SortRadio
           {...{
             state,
             setState,
@@ -105,7 +122,7 @@ export default function ViewPage({
         <div>
           <Pager {...{ state, setState }} />
 
-          <div className="flex flex-wrap mx-2 mb-8 ">
+          <div className="flex flex-wrap mx-2 mb-12 ">
             {data.map((name, i) => {
               if (i < pageSize * page || i >= pageSize * (page + 1)) {
                 return undefined
@@ -255,7 +272,7 @@ function Pager({
   )
 }
 
-function RadioLabel({
+function SortRadio({
   label,
   order,
   direction,
