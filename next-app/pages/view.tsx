@@ -21,6 +21,7 @@ import {
   ReviewerDialog,
   ExtensionRoundResults,
 } from '../components/ExtensionRoundResults'
+import { WikiNameDialog } from 'components/WikiNameDialog'
 
 function maxRound(heart: HeartInterface[]) {
   const rounds = heart.map((h) =>
@@ -31,26 +32,53 @@ function maxRound(heart: HeartInterface[]) {
   return Math.max(...rounds)
 }
 
+interface PageState {
+  loading: boolean
+  showWikipedia: boolean
+  wikipediaName: string
+}
+
 export default function ViewPage({
   user,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [{ hearts, round }, dispatch] = useStateValue()
-  const [loading, setLoading] = useState(false)
+  const [state, setState] = useState<PageState>({
+    loading: false,
+    showWikipedia: false,
+    wikipediaName: '',
+  })
 
   useEffect(() => {
     if (user && user.isLoggedIn && hearts.length === 0) {
-      setLoading(true)
+      setState((prev) => ({ ...prev, loading: true }))
       loadHearts()
         .then((newHearts) => dispatch(setHearts(newHearts)))
         .catch((result) => console.log('error loading hearts', { result }))
-        .finally(() => setLoading(false))
+        .finally(() => setState((prev) => ({ ...prev, loading: false })))
     }
   }, [user])
 
+  function showWikipedia(name: string) {
+    setState((prev) => ({
+      ...prev,
+      wikipediaName: name,
+      showWikipedia: true,
+    }))
+  }
+  function closeWikipedia() {
+    setState((prev) => ({
+      ...prev,
+      wikipediaName: '',
+      showWikipedia: false,
+    }))
+  }
   return (
-    <Layout {...{ user, loading }}>
+    <Layout {...{ user, loadign: state.loading }}>
       <div className="flex justify-between items-center w-full flex-col">
         {user && <ReviewerDialog {...{ user }} />}
+        {state.showWikipedia && (
+          <WikiNameDialog {...{ ...state, closeWikipedia }} />
+        )}
         <div className="mx-1 flex justify-between items-center w-full">
           <div>
             <Title className="">Tykättyjä nimiä</Title>
@@ -60,14 +88,20 @@ export default function ViewPage({
           </div>
           <ChooseRoundMenu />
         </div>
-        {round === 0 && <BasicResults />}
-        {round > 0 && user && <ExtensionRoundResults {...{ user }} />}
+        {round === 0 && <BasicResults {...{ showWikipedia }} />}
+        {round > 0 && user && (
+          <ExtensionRoundResults {...{ user, showWikipedia }} />
+        )}
       </div>
     </Layout>
   )
 }
 
-function BasicResults() {
+function BasicResults({
+  showWikipedia,
+}: {
+  showWikipedia(name: string): void
+}) {
   const [{ username, hearts }] = useStateValue()
   const router = useRouter()
 
@@ -109,9 +143,9 @@ function BasicResults() {
               })
               .map((heart, i) => (
                 <div className="w-1/2 md:w-1/4" key={`heart.${i}.${username}`}>
-                  <div>
+                  <button onClick={() => showWikipedia(heart.name)}>
                     {heart.score}: {heart.name}
-                  </div>
+                  </button>
                 </div>
               ))}
           </div>

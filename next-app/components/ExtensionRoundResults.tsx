@@ -6,7 +6,13 @@ import { HeartInterface, RoundInterface, ScoreInterface } from 'lib/heart'
 import { HeartIcon } from 'components/HeartIcon'
 import { Button } from 'components/Button'
 
-export function ExtensionRoundResults({ user }: { user: Account }) {
+export function ExtensionRoundResults({
+  user,
+  showWikipedia,
+}: {
+  user: Account
+  showWikipedia(name: string): void
+}) {
   const [{ round, hearts, username, roundSortByScore }] = useStateValue()
 
   const uniqueNames = new Set<string>(hearts.map((h) => h.name))
@@ -48,7 +54,9 @@ export function ExtensionRoundResults({ user }: { user: Account }) {
           key={`chooseround.${round}.${uh.name}`}
           className={i % 2 === 0 ? 'bg-gray-100' : ' '}
         >
-          <td className="w-1/4 pl-2">{uh.name}</td>
+          <td className="w-1/4 pl-2">
+            <button onClick={() => showWikipedia(uh.name)}>{uh.name}</button>
+          </td>
           {user?.usernames.map((name) => (
             <td key={`chooseround.like.${uh.name}.${name}`}>
               <ExtensionRoundName
@@ -188,7 +196,9 @@ export function ReviewerDialog({ user }: { user: Account }) {
   return (
     <>
       <div className="flex h-10 w-full justify-between mt-2 mx-[-4rem]">
-        <div></div>
+        <div className="text-gray-600 text-xs">
+          Klikkaamalla nimeä saat sen tiedot Wikipediasta.
+        </div>
         <Button disabled={open} onClick={() => setOpen(true)}>
           Hei {username}
         </Button>

@@ -9,6 +9,7 @@ import { boys } from 'data/boys'
 import { HeartIcon } from 'components/HeartIcon'
 import { addHeart, setHearts, useStateValue } from 'components/state/state'
 import { ButtonSmall } from 'components/Button'
+import { WikiNameDialog } from 'components/WikiNameDialog'
 
 export interface PageState {
   page: number
@@ -17,6 +18,8 @@ export interface PageState {
   order?: 'count' | 'abc'
   direction?: 'asc' | 'desc'
   view: 'girls' | 'boys'
+  showWikipedia: boolean
+  wikipediaName: string
 }
 export interface Name {
   count: number
@@ -34,6 +37,8 @@ export default function ViewPage({
     order: 'count',
     direction: 'asc',
     view: 'girls',
+    showWikipedia: false,
+    wikipediaName: '',
   })
 
   const [data, setData] = useState<Name[]>([])
@@ -67,9 +72,29 @@ export default function ViewPage({
     if (state.order && state.direction) init()
   }, [state.order, state.direction, state.view])
 
+  function showWikipedia(name: string) {
+    setState((prev) => ({
+      ...prev,
+      wikipediaName: name,
+      showWikipedia: true,
+    }))
+  }
+
+  function closeWikipedia() {
+    setState((prev) => ({
+      ...prev,
+      wikipediaName: '',
+      showWikipedia: false,
+    }))
+  }
+
   return (
     <Layout {...{ user }}>
       <div className="mt-2 mb-2 md:mb-4 w-full flex justify-center text-xs sm:text-[1rem]">
+        {state.showWikipedia && (
+          <WikiNameDialog {...{ ...state, closeWikipedia }} />
+        )}
+
         <ButtonSmall
           className="mx-2 md:mx-6 disabled:bg-pink-400 bg-pink-100 hover:bg-pink-400"
           disabled={state.view === 'girls'}
@@ -127,7 +152,12 @@ export default function ViewPage({
               if (i < pageSize * page || i >= pageSize * (page + 1)) {
                 return undefined
               }
-              return <GiveHeart key={`givename.${name.name}`} {...{ name }} />
+              return (
+                <GiveHeart
+                  key={`givename.${name.name}`}
+                  {...{ name, showWikipedia }}
+                />
+              )
             })}
           </div>
 
@@ -159,7 +189,13 @@ export const getServerSideProps = withIronSessionSsr(async function ({ req }) {
   }
 }, sessionOptions)
 
-function GiveHeart({ name }: { name: Name }) {
+function GiveHeart({
+  name,
+  showWikipedia,
+}: {
+  name: Name
+  showWikipedia(name: string): void
+}) {
   const [{ username, hearts }, dispatch] = useStateValue()
 
   function handleScoreClicked(name: string, score: number) {
@@ -183,11 +219,12 @@ function GiveHeart({ name }: { name: Name }) {
       dispatch(setHearts(newHearts))
     }
   }
+
   return (
     <div className="w-1/2 md:w-1/4 lg:w-1/6 h-20 border p-2 flex flex-col align-center align-items-center">
-      <div className="m-auto">
+      <button className="m-auto" onClick={() => showWikipedia(name.name)}>
         {name.name} <span className="text-sm text-gray-400">{name.count} </span>
-      </div>
+      </button>
       <div className="flex m-2 justify-center">
         {scoreRange.map((score) => (
           <HeartIcon
