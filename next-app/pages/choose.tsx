@@ -60,9 +60,11 @@ export default function ViewPage({
   function init() {
     if (state.view === 'girls') {
       setData(() => [...girls].sort(compareNames()))
+      setState((prev) => ({ ...prev, nameCount: girls.length }))
     }
     if (state.view === 'boys') {
       setData(() => [...boys].sort(compareNames()))
+      setState((prev) => ({ ...prev, nameCount: boys.length }))
     }
   }
 
