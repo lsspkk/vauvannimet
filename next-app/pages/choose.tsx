@@ -21,12 +21,29 @@ export interface PageState {
   view: 'girls' | 'boys'
   showWikipedia: boolean
   wikipediaName: string
+  showFilterDialog: boolean
+  syllabusFilter: number
+  twoPartFilter: boolean
 }
 export interface Name {
   count: number
   name: string
 }
 const scoreRange = Array.from(Array(5), (x, i) => i + 1)
+
+const vowels = 'aeiouyåäöAEIOUYÅÄÖ'
+function syllabusOk(name: string, syllabusAmount: number) {
+  let lastVowelIndex = -100
+  let count = 0
+  for (let i = 0; i < name.length; i++) {
+    const c = name.charAt(i)
+    if (vowels.includes(c) && lastVowelIndex + 1 !== i) {
+      count++
+      lastVowelIndex = i
+    }
+  }
+  return count >= syllabusAmount
+}
 
 export default function ViewPage({
   user,
@@ -40,6 +57,9 @@ export default function ViewPage({
     view: 'girls',
     showWikipedia: false,
     wikipediaName: '',
+    twoPartFilter: false,
+    syllabusFilter: 0,
+    showFilterDialog: false,
   })
 
   const [data, setData] = useState<Name[]>([])
@@ -58,14 +78,18 @@ export default function ViewPage({
   }
 
   function init() {
-    if (state.view === 'girls') {
-      setData(() => [...girls].sort(compareNames()))
-      setState((prev) => ({ ...prev, nameCount: girls.length }))
-    }
-    if (state.view === 'boys') {
-      setData(() => [...boys].sort(compareNames()))
-      setState((prev) => ({ ...prev, nameCount: boys.length }))
-    }
+    const newData = state.view === 'girls' ? [...girls] : [...boys]
+    const filtered = newData
+      .filter((g) => !state.twoPartFilter || !g.name.includes('-'))
+      .filter(
+        (g) => !state.syllabusFilter || syllabusOk(g.name, state.syllabusFilter)
+      )
+      .sort(compareNames())
+    const nameCount = filtered.length
+    const lastPage = Math.floor(nameCount / state.pageSize)
+    const page = state.page <= lastPage ? state.page : lastPage
+    setData(() => filtered)
+    setState((prev) => ({ ...prev, nameCount, page }))
   }
 
   useEffect(() => {
@@ -73,7 +97,13 @@ export default function ViewPage({
   }, [])
   useEffect(() => {
     if (state.order && state.direction) init()
-  }, [state.order, state.direction, state.view])
+  }, [
+    state.order,
+    state.direction,
+    state.view,
+    state.twoPartFilter,
+    state.syllabusFilter,
+  ])
 
   function showWikipedia(name: string) {
     setState((prev) => ({
@@ -90,6 +120,12 @@ export default function ViewPage({
       showWikipedia: false,
     }))
   }
+  function toggleFilterDialog() {
+    setState((prev) => ({
+      ...prev,
+      showFilterDialog: !prev.showFilterDialog,
+    }))
+  }
 
   return (
     <Layout {...{ user }}>
@@ -97,6 +133,7 @@ export default function ViewPage({
         {state.showWikipedia && (
           <WikiNameDialog {...{ ...state, closeWikipedia }} />
         )}
+        {state.showFilterDialog && <FilterDialog {...{ state, setState }} />}
 
         <ButtonSmall
           className="mx-2 md:mx-6 disabled:bg-pink-400 bg-pink-100 hover:bg-pink-400"
@@ -112,6 +149,13 @@ export default function ViewPage({
         >
           Pojat
         </ButtonSmall>
+        <ButtonSmall
+          className="ml-4 md:ml-8 bg-cyan-200"
+          onClick={toggleFilterDialog}
+        >
+          Suodattimet
+        </ButtonSmall>
+        {syllabusOk('Tuula', 2)}
       </div>
       <div className="mt-2 mb-6 w-full flex justify-center text-xs sm:text-[1rem]">
         <div className="font-bold mr-2">Järjestys:</div>
@@ -345,5 +389,105 @@ function SortRadio({
       />
       {label}
     </label>
+  )
+}
+function FilterDialog({
+  state,
+  setState,
+}: {
+  state: PageState
+  setState: Dispatch<SetStateAction<PageState>>
+}) {
+  const ref = React.useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as HTMLElement)) {
+        setState((prev) => ({ ...prev, showFilterDialog: false }))
+      }
+    }
+    document.addEventListener('click', handleClickOutside, true)
+    return () => {
+      document.removeEventListener('click', handleClickOutside, true)
+    }
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      className="absolute top-15 border border-gray-400 border-2 shadow-xl p-10 bg-gray-200 mt-10 z-6"
+    >
+      <div>
+        <div className="text-lg mb-2">Moniosaiset nimet</div>
+
+        <label className="mx-1 sm:mx-2">
+          <input
+            className="mr-1"
+            type="radio"
+            name="moniosaiset-kaytossa"
+            value="true"
+            checked={!state.twoPartFilter}
+            onChange={() =>
+              setState((prev) => ({ ...prev, twoPartFilter: false }))
+            }
+          />
+          mukana
+        </label>
+        <label className="mx-1 sm:mx-2">
+          <input
+            className="mr-1"
+            type="radio"
+            name="moniosaiset-kaytossa"
+            value="false"
+            checked={state.twoPartFilter}
+            onChange={() =>
+              setState((prev) => ({ ...prev, twoPartFilter: true }))
+            }
+          />
+          poissa
+        </label>
+
+        <div className="text-lg mb-1 mt-6">Tavujen määrä</div>
+        <SyllabusRadio
+          {...{ state, setState, label: 'Ei rajoitusta', value: 0 }}
+        />
+        <SyllabusRadio
+          {...{ state, setState, label: 'vähintään 3', value: 3 }}
+        />
+        <SyllabusRadio
+          {...{ state, setState, label: 'vähintään 4', value: 4 }}
+        />
+      </div>
+    </div>
+  )
+}
+
+function SyllabusRadio({
+  state,
+  setState,
+  label,
+  value,
+}: {
+  label: string
+  value: number
+  state: PageState
+  setState: Dispatch<SetStateAction<PageState>>
+}) {
+  return (
+    <div className="my-2 sm:my-2">
+      <label>
+        <input
+          className="mr-2"
+          type="radio"
+          name="syllabysFilter"
+          value={value}
+          checked={state.syllabusFilter === value}
+          onChange={() =>
+            setState((prev) => ({ ...prev, syllabusFilter: value }))
+          }
+        />
+        {label}
+      </label>
+    </div>
   )
 }
