@@ -202,8 +202,6 @@ function GiveHeart({
   function handleScoreClicked(name: string, score: number) {
     const old = hearts.find((h) => h.name === name && h.username === username)
     if (old?.score === score) {
-      console.debug({ old })
-
       const newHearts = !old.id
         ? hearts.filter((h) => h.name !== name || h.username !== username)
         : hearts.map((h) => {
@@ -219,7 +217,6 @@ function GiveHeart({
     } else if (!old) {
       dispatch(addHeart({ name, score, username, onSave: 'insert' }))
     } else {
-      console.debug({ old })
       const newHearts = hearts.map((h) => {
         if (h.name !== name || h.username !== username) {
           return { ...h }
