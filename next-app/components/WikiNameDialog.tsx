@@ -43,7 +43,7 @@ export function WikiNameDialog({
   const [wikiExtractPage] = useWikiExtractPage(wikipediaName)
 
   return (
-    <div className="absolute max-w-[40rem] p-4 sm:p-10 m-4 border rounded shadow-xl text-sm md:text-base top-20 bg-white z-10">
+    <div className="fixed max-w-[40rem] p-4 py-10 m-4 border rounded shadow-xl text-sm md:text-base top-20 bottom-20 bg-white z-10 max-h-[90vh] overflow-auto">
       <div className="flex justify-between items-center mb-4">
         <Title>Wikipedia: {wikipediaName}</Title>
         <ButtonSmall
@@ -62,24 +62,24 @@ export function WikiNameDialog({
           <p className="whitespace-pre-line">{wikiExtractPage.extract}</p>
         )}
       </div>
-      <div className="flex justify-end">
-        <ButtonSmall
-          className="border-gray-500 border-2 border-gray-400 shadow hover:bg-gray-100"
-          onClick={closeWikipedia}
-        >
-          Sulje
-        </ButtonSmall>
+      <div className="flex justify-between md:justify-end">
         {wikiExtractPage !== undefined && (
           <a
             target={'_blank'}
             href={`https://fi.wikipedia.com/?curid=${wikiExtractPage.pageid}`}
             rel="noreferrer"
           >
-            <ButtonSmall className="bg-cyan-200 ml-12 shadow">
+            <ButtonSmall className="bg-cyan-200 md:mr-12 shadow">
               Avaa Wikipedia
             </ButtonSmall>
           </a>
         )}
+        <ButtonSmall
+          className="border-gray-500 border-2 border-gray-400 shadow hover:bg-gray-100"
+          onClick={closeWikipedia}
+        >
+          Sulje
+        </ButtonSmall>
       </div>
     </div>
   )
