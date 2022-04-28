@@ -97,7 +97,7 @@ export async function saveHearts(
       Accept: 'application/json',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(hearts),
+    body: JSON.stringify(hearts.filter((h) => h.onSave !== undefined)),
   })
   if (!res.ok) {
     throw res

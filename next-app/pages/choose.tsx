@@ -10,6 +10,7 @@ import { HeartIcon } from 'components/HeartIcon'
 import { addHeart, setHearts, useStateValue } from 'components/state/state'
 import { ButtonSmall } from 'components/Button'
 import { WikiNameDialog } from 'components/WikiNameDialog'
+import { HeartInterface } from 'lib/heart'
 
 export interface PageState {
   page: number
@@ -201,20 +202,30 @@ function GiveHeart({
   function handleScoreClicked(name: string, score: number) {
     const old = hearts.find((h) => h.name === name && h.username === username)
     if (old?.score === score) {
-      if (old.id) return
-      dispatch(
-        setHearts(
-          hearts.filter((h) => h.name !== name || h.username !== username)
-        )
-      )
+      console.debug({ old })
+
+      const newHearts = !old.id
+        ? hearts.filter((h) => h.name !== name || h.username !== username)
+        : hearts.map((h) => {
+            if (h.name !== name || h.username !== username) {
+              return { ...h }
+            }
+            // name currently saved in database
+            const onSave = h.onSave === 'delete' ? 'update' : 'delete'
+            return { ...h, onSave } as HeartInterface
+          })
+
+      dispatch(setHearts(newHearts))
     } else if (!old) {
-      dispatch(addHeart({ name, score, username }))
+      dispatch(addHeart({ name, score, username, onSave: 'insert' }))
     } else {
+      console.debug({ old })
       const newHearts = hearts.map((h) => {
         if (h.name !== name || h.username !== username) {
           return { ...h }
         }
-        return { name, username, score }
+        const onSave = !old.id ? 'insert' : 'update'
+        return { ...h, score, onSave } as HeartInterface
       })
       dispatch(setHearts(newHearts))
     }
@@ -235,7 +246,8 @@ function GiveHeart({
                 (h) =>
                   h.name === name.name &&
                   h.username === username &&
-                  h.score >= score
+                  h.score >= score &&
+                  h.onSave !== 'delete'
               ) !== undefined
             }
             onClick={() => handleScoreClicked(name.name, score)}

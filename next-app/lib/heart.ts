@@ -6,6 +6,7 @@ export interface HeartInterface {
   username: string
   account?: string
   rounds?: RoundInterface[]
+  onSave?: 'update' | 'delete' | 'insert'
 }
 
 export const emptyHeart = {

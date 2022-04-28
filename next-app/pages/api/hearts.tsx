@@ -19,13 +19,29 @@ export default withIronSessionApiRoute(async function handler(
       const hearts: HeartInterface[] = req.body
 
       const log = await Heart.bulkWrite(
-        hearts.map((h) => ({
-          updateOne: {
-            filter: { _id: h.id, account },
-            update: h,
-            upsert: true,
-          },
-        }))
+        hearts.map((h) => {
+          if (h.onSave === 'update')
+            return {
+              updateOne: {
+                filter: { _id: h.id, account },
+                update: h,
+                upsert: true,
+              },
+            }
+
+          if (h.onSave === 'insert')
+            return {
+              insertOne: {
+                document: { ...h, account },
+              },
+            }
+
+          return {
+            deleteOne: {
+              filter: { _id: h.id, account },
+            },
+          }
+        })
       )
       console.log('bulkwrite log', log)
       const newHearts: Array<HeartInterface> = await Heart.find({

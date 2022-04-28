@@ -113,7 +113,7 @@ function ExtensionRoundName({
       rounds = [{ round, scores: [newScore] }]
     }
     const changedHearts: HeartInterface[] = hearts.map((h) =>
-      h.name === name ? { ...h, rounds } : { ...h }
+      h.name === name ? { ...h, rounds, onSave: 'update' } : { ...h }
     )
     dispatch(setHearts(changedHearts))
   }
