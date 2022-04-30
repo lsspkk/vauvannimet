@@ -12,6 +12,7 @@ import { ButtonSmall } from 'components/Button'
 import { WikiNameDialog } from 'components/WikiNameDialog'
 import { HeartInterface } from 'lib/heart'
 
+type SyllabusOption = 'none' | 'two' | 'three+' | 'four+'
 export interface PageState {
   page: number
   pageSize: number
@@ -22,7 +23,7 @@ export interface PageState {
   showWikipedia: boolean
   wikipediaName: string
   showFilterDialog: boolean
-  syllabusFilter: number
+  syllabusFilter: SyllabusOption
   twoPartFilter: boolean
 }
 export interface Name {
@@ -32,7 +33,7 @@ export interface Name {
 const scoreRange = Array.from(Array(5), (x, i) => i + 1)
 
 const vowels = 'aeiouyåäöAEIOUYÅÄÖ'
-function syllabusOk(name: string, syllabusAmount: number) {
+function syllabusMatches(name: string, option: SyllabusOption) {
   let lastVowelIndex = -100
   let count = 0
   for (let i = 0; i < name.length; i++) {
@@ -40,9 +41,13 @@ function syllabusOk(name: string, syllabusAmount: number) {
     if (vowels.includes(c) && lastVowelIndex + 1 !== i) {
       count++
       lastVowelIndex = i
+      if (option === 'two' && count > 2) return false
+      if (option === 'three+' && count >= 3) return true
+      if (option === 'four+' && count >= 4) return true
     }
   }
-  return count >= syllabusAmount
+
+  return option === 'two' && count <= 2
 }
 
 export default function ViewPage({
@@ -58,7 +63,7 @@ export default function ViewPage({
     showWikipedia: false,
     wikipediaName: '',
     twoPartFilter: false,
-    syllabusFilter: 0,
+    syllabusFilter: 'none',
     showFilterDialog: false,
   })
 
@@ -82,7 +87,9 @@ export default function ViewPage({
     const filtered = newData
       .filter((g) => !state.twoPartFilter || !g.name.includes('-'))
       .filter(
-        (g) => !state.syllabusFilter || syllabusOk(g.name, state.syllabusFilter)
+        (g) =>
+          state.syllabusFilter === 'none' ||
+          syllabusMatches(g.name, state.syllabusFilter)
       )
       .sort(compareNames())
     const nameCount = filtered.length
@@ -155,7 +162,6 @@ export default function ViewPage({
         >
           Suodattimet
         </ButtonSmall>
-        {syllabusOk('Tuula', 2)}
       </div>
       <div className="mt-2 mb-6 w-full flex justify-center text-xs sm:text-[1rem]">
         <div className="font-bold mr-2">Järjestys:</div>
@@ -415,7 +421,7 @@ function FilterDialog({
   return (
     <div
       ref={ref}
-      className="absolute top-15 border border-gray-400 border-2 shadow-xl p-10 bg-gray-200 mt-10 z-6"
+      className="absolute top-14 border border-gray-300 border-2 shadow-xl p-10 bg-gray-100 mt-10 z-10"
     >
       <div>
         <div className="text-lg mb-2">Moniosaiset nimet</div>
@@ -447,15 +453,18 @@ function FilterDialog({
           poissa
         </label>
 
-        <div className="text-lg mb-1 mt-6">Tavujen määrä</div>
+        <div className="text-lg mb-1 mt-10">Tavujen määrä</div>
         <SyllabusRadio
-          {...{ state, setState, label: 'Ei rajoitusta', value: 0 }}
+          {...{ state, setState, label: 'ei rajoitusta', value: 'none' }}
         />
         <SyllabusRadio
-          {...{ state, setState, label: 'vähintään 3', value: 3 }}
+          {...{ state, setState, label: 'enintään 2', value: 'two' }}
         />
         <SyllabusRadio
-          {...{ state, setState, label: 'vähintään 4', value: 4 }}
+          {...{ state, setState, label: 'vähintään 3', value: 'three+' }}
+        />
+        <SyllabusRadio
+          {...{ state, setState, label: 'vähintään 4', value: 'four+' }}
         />
       </div>
     </div>
@@ -469,7 +478,7 @@ function SyllabusRadio({
   value,
 }: {
   label: string
-  value: number
+  value: SyllabusOption
   state: PageState
   setState: Dispatch<SetStateAction<PageState>>
 }) {
