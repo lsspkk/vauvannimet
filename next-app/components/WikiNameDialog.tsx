@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { ButtonSmall } from './Button'
+import { Button, ButtonSmall } from './Button'
 import { Title } from './Title'
+import { Dialog } from './Dialog'
 
 interface WikiExtractPage {
   title: string
@@ -43,15 +44,12 @@ export function WikiNameDialog({
   const [wikiExtractPage] = useWikiExtractPage(wikipediaName)
 
   return (
-    <div className="fixed max-w-[40rem] p-4 py-10 m-4 border rounded shadow-xl text-sm md:text-base top-20 bottom-20 bg-white z-10 max-h-[90vh] overflow-auto">
+    <Dialog open={true} onClose={closeWikipedia}>
+      <div className="font-bold mb-4 text-lg">
+        Wikipedia: {wikipediaName} hakutulos
+      </div>
       <div className="flex justify-between items-center mb-4">
-        <Title>Wikipedia: {wikipediaName}</Title>
-        <ButtonSmall
-          className="border-gray-500 border-2 border-gray-400 shadow hover:bg-gray-100 ml-12"
-          onClick={closeWikipedia}
-        >
-          Sulje
-        </ButtonSmall>
+        <Title>{wikipediaName}</Title>
       </div>
       <div className="m-4">
         {wikiExtractPage === undefined ||
@@ -62,25 +60,20 @@ export function WikiNameDialog({
           <p className="whitespace-pre-line">{wikiExtractPage.extract}</p>
         )}
       </div>
-      <div className="flex justify-between md:justify-end">
+      <div className="flex gap-4 lg:gap-12 justify-between md:justify-end">
         {wikiExtractPage !== undefined && (
           <a
             target={'_blank'}
             href={`https://fi.wikipedia.com/?curid=${wikiExtractPage.pageid}`}
             rel="noreferrer"
           >
-            <ButtonSmall className="bg-cyan-200 md:mr-12 shadow">
-              Avaa Wikipedia
-            </ButtonSmall>
+            <Button className="shadow">Avaa Wikipedia</Button>
           </a>
         )}
-        <ButtonSmall
-          className="border-gray-500 border-2 border-gray-400 shadow hover:bg-gray-100"
-          onClick={closeWikipedia}
-        >
+        <Button className="bg-gray-300" onClick={closeWikipedia}>
           Sulje
-        </ButtonSmall>
+        </Button>
       </div>
-    </div>
+    </Dialog>
   )
 }

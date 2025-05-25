@@ -61,3 +61,39 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+# Instructions for GitHub Copilot
+
+## Project Overview
+
+- **Framework**: Next.js
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Purpose**: Helps users choose baby names.
+
+## Key Directories
+
+- `components/`: Reusable UI components.
+- `data/`: Stores data files for boys' and girls' names.
+- `lib/`: Utility functions for database connection, session management, and API handling.
+- `pages/`: Next.js pages and API routes.
+- `styles/`: Global and module-specific CSS files.
+- `test/`: Scripts or utilities for testing.
+
+## Main Features
+
+- **Login Dialog**: Allows users to log in or proceed without an account.
+- **API Routes**: Handles login, logout, user data, and other functionalities.
+- **State Management**: Managed using React Context in `state/state.tsx`.
+
+## Development Workflow
+
+1. Use `npm run dev` to start the development server.
+2. Make changes in `components/` or `pages/` for UI or routing updates.
+3. Update API logic in `pages/api/`.
+4. Test changes locally.
+
+## Future Tasks
+
+- Follow existing patterns for state management, API calls, and styling.
+- Test all changes to ensure they align with the application's purpose.

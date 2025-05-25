@@ -10,6 +10,7 @@ import {
   setHearts,
   setRound,
   resetRoundSortList,
+  useSaveHearts,
 } from 'components/state/state'
 import { Title } from 'components/Title'
 import React, { useEffect, useState } from 'react'
@@ -22,6 +23,7 @@ import {
   ExtensionRoundResults,
 } from '../components/ExtensionRoundResults'
 import { WikiNameDialog } from 'components/WikiNameDialog'
+import { TykkaystenHallintaDialog } from 'components/TykkaystenHallintaDialog'
 
 function maxRound(heart: HeartInterface[]) {
   const rounds = heart.map((h) =>
@@ -79,14 +81,17 @@ export default function ViewPage({
         {state.showWikipedia && (
           <WikiNameDialog {...{ ...state, closeWikipedia }} />
         )}
-        <div className="mx-1 flex justify-between items-center w-full">
+        <div className="mx-1 flex justify-between gap-4 lg:gap-12 items-center w-full">
           <div>
             <Title className="">Tykättyjä nimiä</Title>
             <span className="pl-1">
               {round === 0 ? 'Alkukierros' : `Jatkokierros ${round}`}
             </span>
           </div>
-          <ChooseRoundMenu />
+          <div className="flex items-center gap-4 lg:gap-12">
+            <ChooseRoundMenu />
+            <TykkaystenHallintaDialog />
+          </div>
         </div>
         {round === 0 && <BasicResults {...{ showWikipedia }} />}
         {round > 0 && user && (
@@ -175,10 +180,10 @@ function ChooseRoundMenu() {
   const max = maxRound(hearts)
   const rounds = max === 0 ? [1] : Array.of(max).map((e, i) => i + 1)
   return (
-    <div className="flex">
+    <div className="flex items-center">
       {hearts.length > 0 && round === 0 && (
         <>
-          <div className="text-xs m-2">Jatkokierrokset</div>
+          <div className="text-xs m-2 font-bold">Jatkokierrokset</div>
           <div className="flex flex-col items-stretch">
             {/* { max+1 > round &&
       <Button onClick={() => dispatch(setRound(rounds.length === 0 ? 1: rounds.length))}>Uusi</Button>} */}

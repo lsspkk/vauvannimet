@@ -3,13 +3,13 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Account } from 'pages/api/user'
-import React, { ReactNode, useState } from 'react'
+import React, { ReactNode } from 'react'
 import { Button } from './Button'
 import {
   resetRoundSortList,
-  saveHearts,
   setHearts,
   setUsername,
+  useSaveHearts,
   useStateValue,
 } from './state/state'
 
@@ -25,7 +25,7 @@ export function Layout({
   const router = useRouter()
 
   const [{ hearts }, dispatch] = useStateValue()
-  const [saving, setSaving] = useState(false)
+  const { save, saving } = useSaveHearts()
 
   async function logout() {
     if (user?.isLoggedIn) {
@@ -36,12 +36,10 @@ export function Layout({
     router.push('/')
   }
 
-  function save() {
-    setSaving(true)
-    saveHearts(hearts)
-      .then((newHearts) => dispatch(setHearts(newHearts)))
+  function saveHeartsHandler() {
+    save()
+      .then(() => dispatch(resetRoundSortList()))
       .catch((result) => console.log('error when saving hearts', { result }))
-      .finally(() => setSaving(false))
   }
 
   return (
@@ -84,10 +82,7 @@ export function Layout({
                   <Button
                     disabled={saving || loading}
                     className="ml-4"
-                    onClick={() => {
-                      save()
-                      dispatch(resetRoundSortList())
-                    }}
+                    onClick={saveHeartsHandler}
                   >
                     Tallenna
                   </Button>

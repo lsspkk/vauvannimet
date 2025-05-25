@@ -2,10 +2,13 @@ import { HeartInterface } from 'lib/heart'
 import React, {
   createContext,
   ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useReducer,
+  useState,
 } from 'react'
+import { saveHearts as saveHeartsApi } from './state'
 
 const initialState: State = {
   username: '',
@@ -148,3 +151,27 @@ export const setRound = (round: number): Action => ({
 export const resetRoundSortList = (): Action => ({
   type: 'RESET_ROUND_SORT_LIST',
 })
+
+export function useSaveHearts() {
+  const [{ hearts }, dispatch] = useStateValue()
+  const [saving, setSaving] = useState(false)
+
+  const save = useCallback(
+    async (overrideHearts?: typeof hearts) => {
+      setSaving(true)
+      try {
+        const newHearts = await saveHeartsApi(overrideHearts || hearts)
+        dispatch(setHearts(newHearts))
+        return newHearts
+      } catch (result) {
+        console.log('error when saving hearts', { result })
+        throw result
+      } finally {
+        setSaving(false)
+      }
+    },
+    [hearts, dispatch]
+  )
+
+  return { save, saving }
+}
