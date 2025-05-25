@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import { Account } from 'pages/api/user'
 import React, { ReactNode } from 'react'
 import { Button } from './Button'
+import { Spinner } from './Spinner'
 import {
   resetRoundSortList,
   setHearts,
@@ -84,6 +85,12 @@ export function Layout({
                     className="ml-4"
                     onClick={saveHeartsHandler}
                   >
+                    {saving && (
+                      <Spinner
+                        className="inline-block mr-2 align-middle"
+                        size={16}
+                      />
+                    )}
                     Tallenna
                   </Button>
                 )}
