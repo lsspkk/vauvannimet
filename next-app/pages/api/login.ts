@@ -38,6 +38,12 @@ export default withIronSessionApiRoute(async function handler(
       } as Account
       req.session.user = user
       await req.session.save()
+    } else {
+      console.warn('Login failed', {
+        account: body.account,
+        password: body.password,
+        accounts: accounts?.map((a) => a.account),
+      })
     }
 
     res.status(ok ? 200 : 401).json({})
