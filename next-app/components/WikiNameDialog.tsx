@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, ButtonSmall } from './Button'
+import { Button } from './Button'
 import { Title } from './Title'
 import { Dialog } from './Dialog'
 

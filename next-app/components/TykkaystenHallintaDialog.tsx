@@ -3,6 +3,7 @@ import { Spinner } from './Spinner'
 import { useSaveHearts, useStateValue } from './state/state'
 import { useState } from 'react'
 import { Button, ButtonSmall } from './Button'
+import React from 'react'
 
 function Dialog({
   open,

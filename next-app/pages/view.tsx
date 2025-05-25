@@ -10,7 +10,6 @@ import {
   setHearts,
   setRound,
   resetRoundSortList,
-  useSaveHearts,
 } from 'components/state/state'
 import { Title } from 'components/Title'
 import React, { useEffect, useState } from 'react'
